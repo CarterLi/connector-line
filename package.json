@@ -1,0 +1,16 @@
+{
+  "name": "connector-line",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "李通洲 <zhangsongcui3371@sina.com>",
+  "license": "MIT",
+  "dependencies": {
+    "angular": "1",
+    "angular-gridster": "^0.13.14",
+    "normalize.css": "^5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.12.2",
+    "node-sass": "^4.1.1"
+  }
+}

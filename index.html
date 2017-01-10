@@ -1,0 +1,26 @@
+<meta charset="utf-8" />
+<link rel="stylesheet" href="node_modules/normalize.css/normalize.css" />
+<link rel="stylesheet" href="node_modules/angular-gridster/dist/angular-gridster.css" />
+<link rel="stylesheet" href="css/index.css" />
+<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-gridster/src/angular-gridster.js"></script>
+<body ng-app="app" ng-controller="RootController as $ctrl">
+  <label>连线中：
+    <input type="checkbox" ng-model="$ctrl.drawing" ng-change="$ctrl.onDrawingChanged()" />
+  </label>
+  <div x-gridster="$ctrl.gridsterOpts">
+    <ul ng-class="{drawing: $ctrl.drawing}" x-draw-line="$ctrl.gridsterOpts" x-draw-line-svg="#svg">
+      <li ng-attr-draggable="{{$ctrl.drawing}}" x-gridster-item="item" ng-repeat="item in $ctrl.standardItems" data-index="{{$index}}">
+        <div class="indicator top"></div><div class="indicator right"></div><div class="indicator bottom"></div><div class="indicator left"></div>
+      </li>
+    </ul>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="triangle" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</body>
+<script src="index.js"></script>

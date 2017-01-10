@@ -1,0 +1,69 @@
+%indicator-highlight {
+  background: yellow;
+}
+
+li {
+  border: 1px solid;
+}
+
+.indicator {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border: 1px solid black;
+  border-radius: 50%;
+  background: white;
+  left: -3px;
+  right: -3px;
+  top: -3px;
+  bottom: -3px;
+  margin: auto;
+
+  :not(.dragging) > & {
+    display: none;
+  }
+
+  &.left {
+    right: auto;
+
+    [data-highlight=left] & {
+      @extend %indicator-highlight;
+    }
+  }
+  &.right {
+    left: auto;
+
+    [data-highlight=right] & {
+      @extend %indicator-highlight;
+    }
+  }
+  &.top {
+    bottom: auto;
+
+    [data-highlight=top] & {
+      @extend %indicator-highlight;
+    }
+  }
+  &.bottom {
+    top: auto;
+
+    [data-highlight=bottom] & {
+      @extend %indicator-highlight;
+    }
+  }
+}
+
+svg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+
+  line {
+    stroke: black;
+    stroke-width: 2px;
+  }
+}
