@@ -1,50 +1,3 @@
-/**
- * @param {HTMLLIElement} el
- */
-function removeElemRelatedLine(el) {
-  if (!el.__lines) return;
-
-  Object.values(el.__lines.start).forEach(lines => {
-    lines.forEach(line => {
-      line.remove();
-      Object.values(line.__rect.end.__lines.end).some(arr => {
-        const idx = arr.indexOf(line);
-        if (~idx) {
-          arr.splice(idx, 1);
-          return true;
-        }
-      });
-    });
-  });
-  Object.values(el.__lines.end).forEach(lines => {
-    lines.forEach(line => {
-      line.remove();
-      Object.values(line.__rect.start.__lines.start).some(arr => {
-        const idx = arr.indexOf(line);
-        if (~idx) {
-          arr.splice(idx, 1);
-          return true;
-        }
-      });
-    });
-  });
-
-  el.__lines = {
-    start: {
-      top: [],
-      right: [],
-      bottom: [],
-      left: [],
-    },
-    end: {
-      top: [],
-      right: [],
-      bottom: [],
-      left: [],
-    },
-  };
-}
-
 angular.module('app', ['gridster'])
 .controller('RootController', function ($scope) {
   // IMPORTANT: Items should be placed in the grid in the order in which they should appear.
@@ -52,29 +5,37 @@ angular.module('app', ['gridster'])
 
   // these map directly to gridsterItem directive options
   this.standardItems = [
-    { sizeX: 1, sizeY: 1, row: 0, col: 0 },
-    { sizeX: 1, sizeY: 1, row: 0, col: 1 },
-    { sizeX: 1, sizeY: 1, row: 0, col: 2 },
-    { sizeX: 1, sizeY: 1, row: 0, col: 3 },
-    { sizeX: 1, sizeY: 1, row: 0, col: 4 },
-    { sizeX: 1, sizeY: 1, row: 1, col: 0 },
-    { sizeX: 1, sizeY: 1, row: 1, col: 1 },
-    { sizeX: 1, sizeY: 1, row: 1, col: 2 },
-    { sizeX: 1, sizeY: 1, row: 1, col: 3 },
-    { sizeX: 1, sizeY: 1, row: 1, col: 4 },
-    { sizeX: 1, sizeY: 1, row: 2, col: 0 }
+    { row: 0, col: 0 },
+    { row: 0, col: 2 },
+    { row: 0, col: 4 },
+    { row: 0, col: 6 },
+    { row: 0, col: 8 },
+    { row: 0, col: 10 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+    { row: 2, col: 4 },
+    { row: 2, col: 6 },
+    { row: 2, col: 8 },
+    { row: 2, col: 10 },
   ];
 
   this.drawing = true;
 
   this.gridsterOpts = {
-    margins: [80, 80],
+    floating: false,
+    mobileModeEnabled: false,
+    margins: [60, 60],
+    columns: 12,
     resizable: {
       enabled: !this.drawing,
     },
     draggable: {
       enabled: !this.drawing,
     },
+    minSizeX: 2,
+    minSizeY: 2,
+    defaultSizeX: 2,
+    defaultSizeY: 2,
   };
 
   this.onDrawingChanged = () => {
@@ -82,7 +43,7 @@ angular.module('app', ['gridster'])
     this.gridsterOpts.resizable.enabled = !this.drawing;
   };
 })
-.directive('drawLine', function ($parse, $rootScope) {
+.directive('drawLine', function ($parse) {
   /**
    * @param {SVGPoint} point
    * @param {ClientRect} rect
@@ -135,6 +96,53 @@ angular.module('app', ['gridster'])
     }
   }
 
+  /**
+   * @param {HTMLLIElement} el
+   */
+  function removeElemRelatedLine(el) {
+    if (!el.__lines) return;
+
+    Object.values(el.__lines.start).forEach(lines => {
+      lines.forEach(line => {
+        line.remove();
+        Object.values(line.__rect.end.__lines.end).some(arr => {
+          const idx = arr.indexOf(line);
+          if (~idx) {
+            arr.splice(idx, 1);
+            return true;
+          }
+        });
+      });
+    });
+    Object.values(el.__lines.end).forEach(lines => {
+      lines.forEach(line => {
+        line.remove();
+        Object.values(line.__rect.start.__lines.start).some(arr => {
+          const idx = arr.indexOf(line);
+          if (~idx) {
+            arr.splice(idx, 1);
+            return true;
+          }
+        });
+      });
+    });
+
+    el.__lines = {
+      start: {
+        top: [],
+        right: [],
+        bottom: [],
+        left: [],
+      },
+      end: {
+        top: [],
+        right: [],
+        bottom: [],
+        left: [],
+      },
+    };
+  }
+
   return {
     restrict: 'A',
     link(scope, element, attrs) {
@@ -150,6 +158,22 @@ angular.module('app', ['gridster'])
        */
       const svg = document.querySelector(attrs.drawLineSvg);
 
+      window.addEventListener('keydown', event => {
+        console.log(event);
+      });
+
+      svg.addEventListener('click', event => {
+        /**
+         * @type {SVGLineElement}
+         */
+        const line = event.target;
+        if (event.target.tagName === 'line') { // A tag name of SVG elements is always lowercase
+          line.classList.toggle('selected');
+        } else {
+          angular.element(svg.children).removeClass('selected');
+        }
+      });
+
       /**
        * @type {SVGLineElement}
        */
@@ -162,7 +186,9 @@ angular.module('app', ['gridster'])
 
       new MutationObserver(mutations => {
         mutations.forEach(m => {
-          [...m.addedNodes].filter(n => n.tagName === 'LI').forEach(
+          Array.from(m.removedNodes).filter(n => n.tagName === 'LI').forEach(removeElemRelatedLine);
+
+          Array.from(m.addedNodes).filter(n => n.tagName === 'LI').forEach(
           /**
            * @param {HTMLLIElement} elem
            */
@@ -185,7 +211,6 @@ angular.module('app', ['gridster'])
             elem.addEventListener('dragstart', event => {
               console.debug('dragstart');
               drawingLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-              drawingLine.setAttribute('marker-end', 'url(#triangle)');
               drawingLine.__rect = {
                 start: null,
                 end: null,
@@ -267,12 +292,16 @@ angular.module('app', ['gridster'])
       // WARNING: Slow
       requestAnimationFrame(function resetLinePoints() {
         Array.from(parent.children).forEach(el => {
-          Object.entries(el.__lines.start).forEach(([position, lines]) => {
-            setLinePoint(lines, el, position, 1);
-          });
-          Object.entries(el.__lines.end).forEach(([position, lines]) => {
-            setLinePoint(lines, el, position, 2);
-          });
+          if (el.__lines) {
+            Object.entries(el.__lines.start).forEach(([position, lines]) => {
+              setLinePoint(lines, el, position, 1);
+            });
+            Object.entries(el.__lines.end).forEach(([position, lines]) => {
+              setLinePoint(lines, el, position, 2);
+            });
+          } else {
+            console.warn('The element doesn\'t contain "__lines" property which should not happen', el);
+          }
         });
         requestAnimationFrame(resetLinePoints);
       });

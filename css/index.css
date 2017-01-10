@@ -1,20 +1,20 @@
 [data-highlight=left] .indicator.left, [data-highlight=right] .indicator.right, [data-highlight=top] .indicator.top, [data-highlight=bottom] .indicator.bottom {
-  background: yellow; }
+  background: green; }
 
 li {
   border: 1px solid; }
 
 .indicator {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border: 1px solid black;
   border-radius: 50%;
   background: white;
-  left: -3px;
-  right: -3px;
-  top: -3px;
-  bottom: -3px;
+  left: -4px;
+  right: -4px;
+  top: -4px;
+  bottom: -4px;
   margin: auto; }
   :not(.dragging) > .indicator {
     display: none; }
@@ -37,4 +37,8 @@ svg {
   height: 100%; }
   svg line {
     stroke: black;
-    stroke-width: 2px; }
+    stroke-width: 2.5px;
+    marker-end: url(#triangle); }
+    svg line.selected {
+      stroke: red;
+      marker-end: url(#triangle-red); }
